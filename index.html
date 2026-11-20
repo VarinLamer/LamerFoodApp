@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#FF5C9A" />
+  <title>Lamerfood</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍓</text></svg>" />
+</head>
+<body>
+  <div class="bg-blobs" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">🍓</div>
+        <div>
+          <h1>Lamerfood</h1>
+          <p class="subtitle" id="greeting">สวัสดีค่ะ</p>
+        </div>
+      </div>
+      <button class="icon-btn" id="manualAddBtn" title="เพิ่มเอง" aria-label="เพิ่มรายการเอง">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </header>
+
+    <!-- ===== TODAY ===== -->
+    <main class="view active" id="view-today">
+      <div class="date-nav">
+        <button class="chip-btn" id="prevDay" aria-label="วันก่อนหน้า"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="date-label" id="dateLabel">วันนี้</button>
+        <button class="chip-btn" id="nextDay" aria-label="วันถัดไป"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+
+      <section class="card hero">
+        <div class="ring-wrap">
+          <svg class="ring" viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#FF9EC4" />
+                <stop offset="100%" stop-color="#E0336F" />
+              </linearGradient>
+            </defs>
+            <circle class="ring-track" cx="100" cy="100" r="84" />
+            <circle class="ring-fill" id="ringFill" cx="100" cy="100" r="84" />
+          </svg>
+          <div class="ring-center">
+            <div class="ring-num" id="kcalEaten">0</div>
+            <div class="ring-unit">kcal</div>
+            <div class="ring-goal" id="kcalGoalLabel">จาก 2,000</div>
+          </div>
+        </div>
+        <div class="hero-side">
+          <div class="remain" id="remainText">เหลืออีก 2,000 kcal</div>
+          <div class="macros">
+            <div class="macro">
+              <div class="macro-top"><span>🥩 โปรตีน</span><b id="mProtein">0 g</b></div>
+              <div class="bar"><i id="bProtein" style="--c:#FF7AA8"></i></div>
+            </div>
+            <div class="macro">
+              <div class="macro-top"><span>🍚 คาร์บ</span><b id="mCarbs">0 g</b></div>
+              <div class="bar"><i id="bCarbs" style="--c:#FFB3CF"></i></div>
+            </div>
+            <div class="macro">
+              <div class="macro-top"><span>🥑 ไขมัน</span><b id="mFat">0 g</b></div>
+              <div class="bar"><i id="bFat" style="--c:#C9467A"></i></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-head">
+        <h2>วันนี้กินอะไรไปบ้าง</h2>
+        <span class="count-pill" id="mealCount">0 รายการ</span>
+      </div>
+      <ul class="meal-list" id="mealList"></ul>
+      <div class="empty" id="emptyState">
+        <div class="empty-emoji">🍰</div>
+        <p>ยังไม่มีบันทึกเลย<br/>กดปุ่มกล้องสีชมพูด้านล่างเพื่อถ่ายรูปอาหารได้เลย!</p>
+      </div>
+    </main>
+
+    <!-- ===== HISTORY ===== -->
+    <main class="view" id="view-history">
+      <section class="card">
+        <div class="section-head tight">
+          <h2>7 วันล่าสุด</h2>
+          <span class="count-pill" id="avgPill">เฉลี่ย 0 kcal</span>
+        </div>
+        <div class="chart" id="weekChart"></div>
+      </section>
+      <div class="section-head"><h2>สรุปรายวัน</h2></div>
+      <ul class="day-list" id="dayList"></ul>
+    </main>
+
+    <!-- ===== SETTINGS ===== -->
+    <main class="view" id="view-settings">
+      <section class="card form">
+        <h2>🔑 OpenAI API Key</h2>
+        <p class="hint">ใช้สำหรับให้ ChatGPT วิเคราะห์รูปอาหาร คีย์ถูกเก็บไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น (localStorage) ไม่ควรใช้บนเครื่องสาธารณะ</p>
+        <div class="input-row">
+          <input type="password" id="apiKey" placeholder="sk-..." autocomplete="off" spellcheck="false" />
+          <button class="ghost-btn" id="toggleKey" type="button">แสดง</button>
+        </div>
+        <label class="field">
+          <span>โมเดล</span>
+          <select id="model">
+            <option value="gpt-4o-mini">gpt-4o-mini (เร็ว ประหยัด)</option>
+            <option value="gpt-4o">gpt-4o (แม่นยำกว่า)</option>
+            <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+            <option value="gpt-4.1">gpt-4.1</option>
+          </select>
+        </label>
+        <div class="btn-row">
+          <button class="primary-btn" id="saveSettings">บันทึก</button>
+          <button class="ghost-btn" id="testKey">ทดสอบคีย์</button>
+        </div>
+      </section>
+
+      <section class="card form">
+        <h2>🎯 เป้าหมายต่อวัน</h2>
+        <label class="field">
+          <span>แคลอรี่ (kcal)</span>
+          <input type="number" id="goal" min="500" max="6000" step="50" inputmode="numeric" />
+        </label>
+        <div class="presets">
+          <button class="chip" data-goal="1500">1,500</button>
+          <button class="chip" data-goal="1800">1,800</button>
+          <button class="chip" data-goal="2000">2,000</button>
+          <button class="chip" data-goal="2500">2,500</button>
+        </div>
+      </section>
+
+      <section class="card form">
+        <h2>🗂️ ข้อมูล</h2>
+        <div class="btn-row">
+          <button class="ghost-btn" id="exportBtn">ส่งออก JSON</button>
+          <button class="danger-btn" id="clearBtn">ล้างข้อมูลทั้งหมด</button>
+        </div>
+      </section>
+      <p class="footnote">แคลอรี่เป็นค่าประมาณจาก AI ใช้เพื่อการติดตามเบื้องต้นเท่านั้น 💗</p>
+    </main>
+  </div>
+
+  <!-- Camera FAB -->
+  <input type="file" id="fileInput" accept="image/*" capture="environment" hidden />
+  <button class="fab" id="fab" aria-label="ถ่ายรูปอาหาร">
+    <svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.6"/></svg>
+  </button>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="today">
+      <svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+      <span>วันนี้</span>
+    </button>
+    <button class="nav-btn" data-view="history">
+      <svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>
+      <span>ประวัติ</span>
+    </button>
+    <div class="nav-spacer"></div>
+    <button class="nav-btn" data-view="settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      <span>ตั้งค่า</span>
+    </button>
+    <button class="nav-btn" id="navCamera" aria-label="ถ่ายรูป">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+      <span>คลังรูป</span>
+    </button>
+  </nav>
+
+  <!-- Sheet (analyze / edit) -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <section class="sheet" id="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-handle"></div>
+    <div id="sheetBody"></div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+  <input type="file" id="galleryInput" accept="image/*" hidden />
+
+  <script src="app.js"></script>
+</body>
+</html>
