@@ -428,10 +428,12 @@
       throw new Error("เชื่อมต่อ OpenAI ไม่ได้ ลองตรวจอินเทอร์เน็ตนะ");
     }
     if (!r.ok) {
-      let msg = "";
-      try { msg = (await r.json())?.error?.message || ""; } catch {}
+      let msg = "", code = "";
+      try { const e = (await r.json())?.error || {}; msg = e.message || ""; code = e.code || e.type || ""; } catch {}
       if (r.status === 401) throw new Error("API key ไม่ถูกต้อง ลองตรวจในหน้าตั้งค่านะ");
-      if (r.status === 429) throw new Error("ใช้งานเกินโควตา/เรียกถี่เกินไป ลองใหม่อีกครู่ หรือตรวจยอดเครดิตใน OpenAI");
+      if (r.status === 429 && (code === "insufficient_quota" || /quota|billing/i.test(msg)))
+        throw new Error("บัญชี OpenAI ไม่มีเครดิต API เหลือ — เติมเงินที่ platform.openai.com → Settings → Billing (แยกจาก ChatGPT Plus) แล้วลองใหม่");
+      if (r.status === 429) throw new Error("เรียกถี่เกินไป รอสักครู่แล้วลองใหม่นะ");
       throw new Error(`OpenAI ตอบกลับผิดพลาด (${r.status}) ${msg}`);
     }
     const data = await r.json();
